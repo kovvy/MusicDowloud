@@ -14,6 +14,8 @@ class Parser extends SendRequestClass
 
     const SONG_URL = 'm/';
 
+    const GENRES_URL = 'p/';
+
     private $document;
 
     public function mainPage()
@@ -112,6 +114,46 @@ class Parser extends SendRequestClass
         $array = $this->parsMusic();
 
         $array['title'] = $this->getTitle();
+
+        return $array;
+
+    }
+
+    public function searchGenresSong($string)
+    {
+        $this->setUrl(self::GENRES_URL. $string);
+
+        $array = $this->parsMusic();
+
+        $array['title'] = $this->getTitle();
+
+        return $array;
+
+    }
+
+    public function genresSongs()
+    {
+        $array = array();
+
+        $this->parsMusic();
+
+        $document = $this->document->find('#xbody-side1 > ul')->children('li');
+
+        foreach ($document as $item) {
+
+            $li = pq($item)->find('a');
+
+            $array[] = array(
+                'name' => $li->text(),
+                'value' => explode('/', $li->attr('href'))[2]
+            );
+        }
+
+        if (!isset($array))
+        {
+            Log::error('Error parser. Genres is empty!');
+            abort(503);
+        }
 
         return $array;
 

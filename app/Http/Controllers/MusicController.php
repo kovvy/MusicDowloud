@@ -58,4 +58,11 @@ class MusicController extends Controller
         return view('music.songs', ['songs' => $songs]);
 
     }
+
+    public function genres($name, Parser $parser)
+    {
+        $songs = $parser->searchSong($name);
+
+        return view('music.songs', ['songs' => $songs]);
+    }
 }

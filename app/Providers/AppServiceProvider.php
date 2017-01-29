@@ -2,18 +2,22 @@
 
 namespace App\Providers;
 
+use App\Http\Controllers\Parser\Parser;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap any application services.
      *
-     * @return void
+     * @param Parser $parser
      */
-    public function boot()
+    public function boot(Parser $parser)
     {
-        //
+        $genres = $parser->genresSongs();
+
+        View::share('genres', $genres);
     }
 
     /**
