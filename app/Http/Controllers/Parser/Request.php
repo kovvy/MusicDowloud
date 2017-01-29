@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Parser;
 
-use hQuery;
+use Illuminate\Support\Facades\Log;
 
 class Request
 {
@@ -10,54 +10,55 @@ class Request
 
     private $url = self::BASE_URL;
 
-    private $headers;
-
     private $body;
-
-    private $options;
-
-    protected function getDocument()
-    {
-        try {
-
-            $document = hQuery::fromUrl($this->url, $this->headers, $this->body, $this->options);
-
-        } catch (\Exception $e) {
-            dd($e);
-        }
-
-        if (!$document)
-        {
-            abort(404);
-        }
-
-        return $document;
-
-    }
 
     protected function setUrl($url)
     {
         $this->url = self::BASE_URL . $url;
     }
 
-    protected function setHeaders(array $headers)
-    {
-        foreach ($headers as $name => $value) {
-            $this->headers[$name] = $value;
-        }
-    }
-
-    protected function setBody($body)
+    protected function setBody(array $body)
     {
         foreach ($body as $name => $value) {
-            $this->$body[$name] = $value;
+            $this->body[$name] = $value;
         }
     }
 
-    protected function setOptions(array $options)
+    protected function getDocument($method = 'GET')
     {
-        foreach ($options as $name => $value) {
-            $this->$options[$name] = $value;
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $this->url);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+
+        if ($method == 'POST' AND !empty($this->body))
+        {
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $this->body);
         }
+
+        $content = curl_exec($ch);
+        $err     = curl_errno($ch);
+        $errmsg  = curl_error($ch);
+        $header  = curl_getinfo($ch);
+
+        curl_close($ch);
+
+        if ($err !== 0)
+        {
+            Log::error($errmsg);
+            abort(503);
+        } elseif (!$content)
+        {
+            Log::error('Error cURL. Content is empty!');
+            abort(503);
+        }
+
+        return $content;
+
     }
 }
