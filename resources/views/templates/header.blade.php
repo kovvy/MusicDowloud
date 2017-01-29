@@ -20,9 +20,10 @@
         </div>
         <!-- / user_block -->
 
-        <form id="he-search" action="/api/search" method="post">
+        <form id="he-search" action="{{url('/search')}}" method="post">
             <div id="he-search_x1">
-                <input name="q" id="he-search-text" placeholder="Поиск — введите название песни или исполнителя" type="text">
+                {{ csrf_field() }}
+                <input name="name" id="he-search-text" placeholder="Поиск — введите название песни или исполнителя" type="text" required>
                 <input id="he-search-submit" value="" type="submit">
 
                 <a href="#" class="hidden" id="search-submitter"></a>

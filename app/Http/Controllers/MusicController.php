@@ -48,4 +48,14 @@ class MusicController extends Controller
 
         return view('music.songs', ['songs' => $songs, 'author' => $author]);
     }
+
+    public function search(Request $request, Parser $parser)
+    {
+        $this->validate($request, ['name' => 'required|string']);
+
+        $songs = $parser->searchSong($request->input('name'));
+
+        return view('music.songs', ['songs' => $songs]);
+
+    }
 }

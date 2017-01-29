@@ -7205,6 +7205,14 @@ function implode(a, b) {
 var SM = soundManager,
     player = null;
 
+$(function(){
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-Token' : $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+});
+
 function Player() {
     var self = this;
     self.data = {
@@ -8656,7 +8664,7 @@ function MusicPlayer() {
             player_title: '#player-page-title',
         },
         url: {
-            search: '/api/search'
+            search: '/search'
         },
         text: {
             loading: 'Загрузка...'
@@ -8688,31 +8696,6 @@ function MusicPlayer() {
                 $value = $(self.data.css.search.value),
                 $submit = $(self.data.css.search.submit),
                 $submitter = $(self.data.css.search.submitter);
-            if (!!(window.history && history.pushState)) {
-                $form.bind({
-                    submit: function(event) {
-                        var query = $(self.data.css.search.value).val();
-                        if (query != $value.val()) {
-                            $value.attr('disabled', true);
-                            $submit.attr('disabled', true);
-                        }
-                        $.ajax({
-                            type: 'POST',
-                            url: self.data.url.search,
-                            data: {
-                                q: query
-                            },
-                            success: function(data) {
-                                $submitter.attr('href', data.url).click();
-                            },
-                            dataType: 'json'
-                        });
-                        //Counters.goal('headerSearch');
-                        $value.blur();
-                        event.preventDefault();
-                    }
-                });
-            }
             $value.bind({
                 focus: function() {},
                 blur: function() {}

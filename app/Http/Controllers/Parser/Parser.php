@@ -94,12 +94,10 @@ class Parser extends SendRequestClass
 
             );
         } else {
-            $array['pagination'] = array(
-                'count' => $document->find('.listalka')->children('li')->count(),
-                'current_page' => pq(array_pop($document->find('.listalka > li > em')->elements))->text()
-            );
-        }
 
+            $array['pagination'] = $this->getPagination($document);
+
+        }
 
         $array['title'] = isset($author) ? $author : $this->getTitle();
 
@@ -107,11 +105,16 @@ class Parser extends SendRequestClass
 
     }
 
-    public function searchSong($url)
+    public function searchSong($string)
     {
-        $this->setUrl(self::SEARCH_URL. $url);
+        $this->setUrl(self::SEARCH_URL. $string);
 
-        return $this->getDocument();
+        $array = $this->parsMusic();
+
+        $array['title'] = $this->getTitle();
+
+        return $array;
+
     }
 
     private function parsMusic()
@@ -175,6 +178,14 @@ class Parser extends SendRequestClass
             'data-index' => $song->attr('data-index'),
             'data-url_song' => $song->attr('data-url_song'),
             'data-duration' => $song->attr('data-duration'),
+        );
+    }
+
+    private function getPagination($document)
+    {
+        return array(
+            'count' => $document->find('.listalka')->children('li')->count(),
+            'current_page' => pq(array_pop($document->find('.listalka > li > em')->elements))->text()
         );
     }
 
